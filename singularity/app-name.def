@@ -1,0 +1,45 @@
+Bootstrap: docker
+From: ubuntu:latest
+
+%runscript
+
+    echo "Hello!"
+
+%setup
+    # mount the cyverse-app-template directory for use in %post
+    mkdir "$SINGULARITY_ROOTFS/cyverse-app-template"
+    mount --no-mtab --bind `pwd` "$SINGULARITY_ROOTFS/cyverse-app-template"
+
+%post
+   apt update
+   apt install -y apt-utils git wget zip build-essential autoconf automake
+
+   # create a directory for installed dependencies
+   export APP_DIR=/app-name
+   mkdir -p $APP_DIR
+   cd $APP_DIR
+
+   # install vsearch
+   cd $APP_DIR
+   wget https://github.com/torognes/vsearch/releases/download/v2.4.3/vsearch-2.4.3-linux-x86_64.tar.gz -O /tmp/vsearch.tar.gz
+   tar xzf /tmp/vsearch.tar.gz
+   rm /tmp/vsearch.tar.gz
+   mv $APP_DIR/vsearch-2.4.3-linux-x86_64 $APP_DIR/vsearch
+   export VSEARCH_PATH=$APP_DIR/vsearch/bin
+   export PATH=$VSEARCH_PATH:$PATH
+   echo "installed vsearch at $VSEARCH_PATH"
+   echo "  PATH=$PATH"
+
+   # add environment variables to /environment file
+   echo "\nexport PATH=$VSEARCH_PATH:\$PATH" >> /environment
+
+   # create mount points for TACC directories
+   mkdir /home1
+   mkdir /scratch
+   mkdir /work
+
+%test
+   . /environment
+   echo "PATH=${PATH}"
+
+   vsearch --version
