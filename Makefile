@@ -11,10 +11,10 @@ container:
 	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
 
 iput-container:
-	iput -K singularity/$(APP).img
+	iput -fKP singularity/$(APP).img
 
 iget-container:
-	iget -K $(APP).img
+	iget -fKP $(APP).img
 	mv $(APP).img stampede/
 
 test:
