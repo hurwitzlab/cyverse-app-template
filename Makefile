@@ -6,15 +6,16 @@ clean:
 	find . \( -name \*.conf -o -name \*.out -o -name \*.log -o -name \*.param -o -name launcher_jobfile_\* \) -exec rm {} \;
 
 container:
-	rm -f singularity/$(APP).img
-	sudo singularity create --size 512 singularity/$(APP).img
-	sudo singularity bootstrap singularity/$(APP).img singularity/$(APP).def
+	rm -f stampede/$(APP).img
+	sudo singularity create --size 512 stampede/$(APP).img
+	sudo singularity bootstrap singularity/$(APP).img stampede/$(APP).def
+	sudo chown --reference=singularity/$(APP).def stampede/$(APP).img
 
 iput-container:
-	iput -fKP singularity/$(APP).img
+	iput -K stampede/$(APP).img
 
 iget-container:
-	iget -fKP $(APP).img
+	iget -K $(APP).img
 	mv $(APP).img stampede/
 
 test:
